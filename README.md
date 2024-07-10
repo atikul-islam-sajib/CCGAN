@@ -1,1 +1,1 @@
-will complete 07.07.2024
+will complete in 20.07.2024
