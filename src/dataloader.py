@@ -352,4 +352,8 @@ if __name__ == "__main__":
         print("An error occurred: ", e)
         traceback.print_exc()
 
-    Loader.dataset_details()
+    try:
+        Loader.dataset_details()
+    except Exception as e:
+        print("An error occurred: ", e)
+        traceback.print_exc()
