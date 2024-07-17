@@ -1,14 +1,24 @@
 import os
 import cv2
+import sys
 import zipfile
+import argparse
 import traceback
 from tqdm import tqdm
 from PIL import Image
-from torch.utils.data import DataLoader
 from torchvision import transforms
+from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 
-from utils import config, dump, load, validate_path, CustomException
+sys.path.append("./")
+
+from utils import (
+    config,
+    dump,
+    load,
+    validate_path,
+    CustomException,
+)
 
 
 class Loader:
@@ -173,10 +183,53 @@ class Loader:
                     self.CONFIG["path"]["PROCESSED_IMAGE_DATA_PATH"]
                 )
             )
+        else:
+            raise CustomException(
+                "Cannot be created the dataloader and processed path is not found".capitalize()
+            )
 
 
 if __name__ == "__main__":
-    loader = Loader(image_path="data/raw/dataset.zip")
+    parser = argparse.ArgumentParser(description="Dataloader for the CCGAN".title())
+    parser.add_argument(
+        "--image_path",
+        type=str,
+        default=config()["dataloader"]["image_path"],
+        help="Batch size for the dataloader".capitalize(),
+    )
+    parser.add_argument(
+        "--channels",
+        type=int,
+        default=config()["dataloader"]["channels"],
+        help="Number of channels".capitalize(),
+    )
+    parser.add_argument(
+        "--image_size",
+        type=int,
+        default=config()["dataloader"]["image_size"],
+        help="Image size".capitalize(),
+    )
+    parser.add_argument(
+        "--batch_size",
+        type=int,
+        default=config()["dataloader"]["batch_size"],
+        help="Batch size".capitalize(),
+    )
+    parser.add_argument(
+        "--split_size",
+        type=float,
+        default=config()["dataloader"]["split_size"],
+        help="Split ratio".capitalize(),
+    )
+    args = parser.parse_args()
+
+    loader = Loader(
+        image_path=args.image_path,
+        channels=args.channels,
+        image_size=args.image_size,
+        batch_size=args.batch_size,
+        split_size=args.split_size,
+    )
     # try:
     #     loader.unzip_folder()
     # except CustomException as e:
@@ -184,4 +237,11 @@ if __name__ == "__main__":
     # except Exception as e:
     #     print(e)
 
-    loader.create_dataloader()
+    try:
+        loader.create_dataloader()
+    except CustomException as e:
+        print("An error occurred: ", e)
+        traceback.print_exc()
+    except Exception as e:
+        print("An error occurred: ", e)
+        traceback.print_exc()
