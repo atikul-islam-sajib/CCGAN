@@ -6,6 +6,7 @@ import argparse
 import traceback
 from tqdm import tqdm
 from PIL import Image
+import matplotlib.pyplot as plt
 from torchvision import transforms
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
@@ -189,6 +190,54 @@ class Loader:
                 "Cannot be created the dataloader and processed path is not found".capitalize()
             )
 
+    @staticmethod
+    def plot_images():
+        processed_data_path = config()["path"]["PROCESSED_IMAGE_DATA_PATH"]
+        if validate_path(path=processed_data_path):
+            train_dataloader = load(
+                filename=os.path.join(processed_data_path, "train_dataloader.pkl")
+            )
+
+            X, y, _ = next(iter(train_dataloader))
+
+            num_of_rows = X.size(0) // 2
+            num_of_columns = X.size(0) // num_of_rows
+
+            plt.figure(figsize=(20, 10))
+
+            plt.suptitle("ImageX and ImageY for CCGAN".capitalize())
+            plt.axis("off")
+
+            for index, image in enumerate(X):
+                imageX = image.permute(1, 2, 0).detach().numpy()
+                imageY = image.permute(1, 2, 0).detach().numpy()
+
+                imageX = (imageX - imageX.min()) / (imageX.max() - imageX.min())
+                imageY = (imageY - imageY.min()) / (imageY.max() - imageY.min())
+
+                plt.subplot(2 * num_of_rows, 2 * num_of_columns, 2 * index + 1)
+                plt.imshow(imageX)
+                plt.title("X")
+                plt.axis("off")
+
+                plt.subplot(2 * num_of_rows, 2 * num_of_columns, 2 * index + 2)
+                plt.imshow(imageY)
+                plt.title("Y")
+                plt.axis("off")
+
+            plt.tight_layout()
+            plt.savefig(os.path.join(config()["path"]["FILES_PATH"], "image.jpeg"))
+            plt.show()
+
+            print(
+                "Image is saved in the folder {}".format(config()["path"]["FILES_PATH"])
+            )
+
+        else:
+            raise CustomException(
+                "Cannot be imported processed path as it is not found".capitalize()
+            )
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Dataloader for the CCGAN".title())
@@ -240,6 +289,15 @@ if __name__ == "__main__":
 
     try:
         loader.create_dataloader()
+    except CustomException as e:
+        print("An error occurred: ", e)
+        traceback.print_exc()
+    except Exception as e:
+        print("An error occurred: ", e)
+        traceback.print_exc()
+
+    try:
+        Loader.plot_images()
     except CustomException as e:
         print("An error occurred: ", e)
         traceback.print_exc()

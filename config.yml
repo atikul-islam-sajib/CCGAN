@@ -1,6 +1,7 @@
 path:
   RAW_IMAGE_DATA_PATH: "./data/raw/"
   PROCESSED_IMAGE_DATA_PATH: "./data/processed/"
+  FILES_PATH: "./artifacts/files/"
 
 dataloader:
   image_path: "./data/raw/dataset.zip"
