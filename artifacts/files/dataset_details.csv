@@ -1,0 +1,8 @@
+,Deatils
+total_dataset,18
+trainX(shape),"torch.Size([8, 3, 128, 128])"
+trainY(shape),"torch.Size([8, 3, 128, 128])"
+validX(shape),"torch.Size([4, 3, 128, 128])"
+validY(shape),"torch.Size([4, 3, 128, 128])"
+train_lr_Y(shape),"torch.Size([8, 3, 32, 32])"
+valid_lr_Y(shape),"torch.Size([4, 3, 32, 32])"

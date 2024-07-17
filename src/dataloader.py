@@ -4,6 +4,7 @@ import sys
 import zipfile
 import argparse
 import traceback
+import pandas as pd
 from tqdm import tqdm
 from PIL import Image
 import matplotlib.pyplot as plt
@@ -30,12 +31,14 @@ class Loader:
         channels: int = 3,
         batch_size: int = 8,
         split_size: float = 0.20,
+        seed_value: int = 0,
     ):
         self.image_path = image_path
         self.image_size = image_size
         self.channels = channels
         self.batch_size = batch_size
         self.split_size = split_size
+        self.seed_value = seed_value
 
         self.CONFIG = config()
 
@@ -76,7 +79,7 @@ class Loader:
     def split_dataset(self, X: list, y: list):
         if isinstance(X, list) and isinstance(y, list):
             X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=self.split_size
+                X, y, test_size=self.split_size, random_state=self.seed_value
             )
 
             return {
@@ -155,14 +158,14 @@ class Loader:
 
         train_dataloader = DataLoader(
             dataset=list(
-                zip(dataset["X_train"], dataset["y_train"], lr_dataset["X_train"])
+                zip(dataset["X_train"], dataset["y_train"], lr_dataset["y_train"])
             ),
             batch_size=self.batch_size,
             shuffle=True,
         )
         valid_dataloader = DataLoader(
             dataset=list(
-                zip(dataset["X_test"], dataset["y_test"], lr_dataset["X_test"])
+                zip(dataset["X_test"], dataset["y_test"], lr_dataset["y_test"])
             ),
             batch_size=self.batch_size,
             shuffle=True,
@@ -198,31 +201,37 @@ class Loader:
                 filename=os.path.join(processed_data_path, "train_dataloader.pkl")
             )
 
-            X, y, _ = next(iter(train_dataloader))
+            X, y, lr = next(iter(train_dataloader))
 
             num_of_rows = X.size(0) // 2
             num_of_columns = X.size(0) // num_of_rows
 
-            plt.figure(figsize=(20, 10))
+            plt.figure(figsize=(20, 30))
 
-            plt.suptitle("ImageX and ImageY for CCGAN".capitalize())
             plt.axis("off")
 
             for index, image in enumerate(X):
                 imageX = image.permute(1, 2, 0).detach().numpy()
-                imageY = image.permute(1, 2, 0).detach().numpy()
+                imageY = y[index].permute(1, 2, 0).detach().numpy()
+                lowerX = lr[index].permute(1, 2, 0).detach().numpy()
 
                 imageX = (imageX - imageX.min()) / (imageX.max() - imageX.min())
                 imageY = (imageY - imageY.min()) / (imageY.max() - imageY.min())
+                lowerX = (lowerX - lowerX.min()) / (lowerX.max() - lowerX.min())
 
-                plt.subplot(2 * num_of_rows, 2 * num_of_columns, 2 * index + 1)
+                plt.subplot(3 * num_of_rows, 3 * num_of_columns, 3 * index + 1)
                 plt.imshow(imageX)
                 plt.title("X")
                 plt.axis("off")
 
-                plt.subplot(2 * num_of_rows, 2 * num_of_columns, 2 * index + 2)
+                plt.subplot(3 * num_of_rows, 3 * num_of_columns, 3 * index + 2)
                 plt.imshow(imageY)
                 plt.title("Y")
+                plt.axis("off")
+
+                plt.subplot(3 * num_of_rows, 3 * num_of_columns, 3 * index + 3)
+                plt.imshow(lowerX)
+                plt.title("lowerY")
                 plt.axis("off")
 
             plt.tight_layout()
@@ -236,6 +245,44 @@ class Loader:
         else:
             raise CustomException(
                 "Cannot be imported processed path as it is not found".capitalize()
+            )
+
+    @staticmethod
+    def dataset_details():
+        processed_data_path = config()["path"]["PROCESSED_IMAGE_DATA_PATH"]
+        if validate_path(path=processed_data_path):
+            train_dataloader = load(
+                filename=os.path.join(processed_data_path, "train_dataloader.pkl")
+            )
+            valid_dataloader = load(
+                filename=os.path.join(processed_data_path, "valid_dataloader.pkl")
+            )
+
+            trainX, trainY, train_lr_Y = next(iter(train_dataloader))
+            validX, validY, valid_lr_Y = next(iter(valid_dataloader))
+
+            pd.DataFrame(
+                {
+                    "total_dataset": str(
+                        sum(X.size(0) for X, _, _ in train_dataloader)
+                        + sum(X.size(0) for X, _, _ in valid_dataloader)
+                    ),
+                    "trainX(shape)": str(trainX.size()),
+                    "trainY(shape)": str(trainY.size()),
+                    "validX(shape)": str(validX.size()),
+                    "validY(shape)": str(validY.size()),
+                    "train_lr_Y(shape)": str(train_lr_Y.size()),
+                    "valid_lr_Y(shape)": str(valid_lr_Y.size()),
+                },
+                index=["Deatils".title()],
+            ).T.to_csv(
+                os.path.join(config()["path"]["FILES_PATH"], "dataset_details.csv")
+            )
+
+            print(
+                "Dataset details are saved in the folder {}".format(
+                    config()["path"]["FILES_PATH"]
+                )
             )
 
 
@@ -304,3 +351,5 @@ if __name__ == "__main__":
     except Exception as e:
         print("An error occurred: ", e)
         traceback.print_exc()
+
+    Loader.dataset_details()
