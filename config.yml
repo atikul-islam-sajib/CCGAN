@@ -1,0 +1,3 @@
+path:
+  RAW_IMAGE_DATA_PATH: "./data/raw/"
+  PROCESSED_IMAGE_DATA_PATH: "./data/processed/"
