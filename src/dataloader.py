@@ -126,6 +126,7 @@ class Loader:
 
                 self.independent.append(self._imageX)
                 self.dependent.append(self._imageY)
+
                 self.lr_independent.append(self.lr_imageX)
                 self.lr_dependent.append(self.lr_imageY)
 
