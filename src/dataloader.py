@@ -1,9 +1,12 @@
 import os
 import cv2
 import zipfile
+import traceback
+from tqdm import tqdm
 from PIL import Image
 from torch.utils.data import DataLoader
 from torchvision import transforms
+from sklearn.model_selection import train_test_split
 
 from utils import config, dump, load, validate_path, CustomException
 
@@ -27,7 +30,8 @@ class Loader:
 
         self.independent: list = []
         self.dependent: list = []
-        self.lr_image: list = []
+        self.lr_independent: list = []
+        self.lr_dependent: list = []
 
     def unzip_folder(self):
         if validate_path(path=self.CONFIG["path"]["RAW_IMAGE_DATA_PATH"]):
@@ -58,6 +62,21 @@ class Loader:
                 ]
             )
 
+    def split_dataset(self, X: list, y: list):
+        if isinstance(X, list) and isinstance(y, list):
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=self.split_size
+            )
+
+            return {
+                "X_train": X_train,
+                "X_test": X_test,
+                "y_train": y_train,
+                "y_test": y_test,
+            }
+        else:
+            raise CustomException("X and y should be list".capitalize())
+
     def feature_extractor(self):
         self.directory = os.path.join(
             self.CONFIG["path"]["RAW_IMAGE_DATA_PATH"], "dataset"
@@ -75,7 +94,7 @@ class Loader:
             self.X.split("/")[-1] == "X" and self.y.split("/")[-1] == "y"
         ), "Directory name should be X and y"
 
-        for index, image in enumerate(os.listdir(self.X)):
+        for _, image in tqdm(enumerate(os.listdir(self.X))):
             if image in os.listdir(self.y):
                 self.imageX = os.path.join(self.X, image)
                 self.imageY = os.path.join(self.y, image)
@@ -97,9 +116,63 @@ class Loader:
 
                 self.independent.append(self._imageX)
                 self.dependent.append(self._imageY)
-                self.lr_image.append(self.lr_imageX)
+                self.lr_independent.append(self.lr_imageX)
+                self.lr_dependent.append(self.lr_imageY)
 
-        assert len(self.independent) == len(self.dependent) == len(self.lr_image)
+        assert (
+            len(self.independent)
+            == len(self.dependent)
+            == len(self.lr_dependent)
+            == len(self.lr_dependent)
+        ), "Length of independent and dependent should be equal"
+
+        try:
+            dataset = self.split_dataset(X=self.independent, y=self.dependent)
+            lr_dataset = self.split_dataset(X=self.lr_independent, y=self.lr_dependent)
+        except CustomException as e:
+            print("An error occurred: ", e)
+            traceback.print_exc()
+        except Exception as e:
+            print("An error occurred: ", e)
+            traceback.print_exc()
+        else:
+            return dataset, lr_dataset
+
+    def create_dataloader(self):
+        dataset, lr_dataset = self.feature_extractor()
+
+        train_dataloader = DataLoader(
+            dataset=list(
+                zip(dataset["X_train"], dataset["y_train"], lr_dataset["X_train"])
+            ),
+            batch_size=self.batch_size,
+            shuffle=True,
+        )
+        valid_dataloader = DataLoader(
+            dataset=list(
+                zip(dataset["X_test"], dataset["y_test"], lr_dataset["X_test"])
+            ),
+            batch_size=self.batch_size,
+            shuffle=True,
+        )
+
+        if validate_path(path=self.CONFIG["path"]["PROCESSED_IMAGE_DATA_PATH"]):
+            for value, filename in [
+                (train_dataloader, "train_dataloader.pkl"),
+                (valid_dataloader, "valid_dataloader.pkl"),
+            ]:
+                dump(
+                    value=value,
+                    filename=os.path.join(
+                        self.CONFIG["path"]["PROCESSED_IMAGE_DATA_PATH"], filename
+                    ),
+                )
+
+            print(
+                "Train and valid dataloader is saved in the folder {}".format(
+                    self.CONFIG["path"]["PROCESSED_IMAGE_DATA_PATH"]
+                )
+            )
 
 
 if __name__ == "__main__":
@@ -111,4 +184,4 @@ if __name__ == "__main__":
     # except Exception as e:
     #     print(e)
 
-    loader.feature_extractor()
+    loader.create_dataloader()
