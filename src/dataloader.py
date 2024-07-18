@@ -402,10 +402,11 @@ if __name__ == "__main__":
         default=config()["dataloader"]["split_size"],
         help="Split ratio".capitalize(),
     )
+    
     parser.add_argument(
         "--database",
         type=bool,
-        default=config()["database"],
+        default=config()["dataloader"]["mongoDB"],
         help="Database".capitalize(),
     )
     args = parser.parse_args()
