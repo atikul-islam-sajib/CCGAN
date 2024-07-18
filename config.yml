@@ -13,5 +13,5 @@ dataloader:
 database:
   USERNAME: "*****"
   PASSWORD: "*****"
-  CULSTER_URL: cluster0.ym14neq.mongodb.net/?appName=Cluster0
+  CULSTER_URL: "cluster0.ym14neq.mongodb.net/?appName=Cluster0"
 
