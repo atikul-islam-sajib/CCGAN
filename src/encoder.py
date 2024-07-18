@@ -21,7 +21,7 @@ class EncoderBlock(nn.Module):
         self.batchnorm = batchnorm
         self.leakyrelu = leakyrelu
 
-        self.kernel_size = 3
+        self.kernel_size = 4
         self.stride_size = 2
         self.padding_size = 1
         self.momentum = 0.8
