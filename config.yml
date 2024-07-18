@@ -9,6 +9,7 @@ dataloader:
   image_size: 128
   batch_size: 8
   split_size: 0.20
+  mongoDB: False
 
 database:
   USERNAME: "*****"
