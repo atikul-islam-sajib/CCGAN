@@ -13,3 +13,4 @@ torchaudio
 torchvision
 torchsummary
 tqdm
+pymongo

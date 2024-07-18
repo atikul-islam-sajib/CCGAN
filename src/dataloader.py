@@ -1,6 +1,7 @@
 import os
 import cv2
 import sys
+import torch
 import zipfile
 import argparse
 import traceback
@@ -20,6 +21,8 @@ from utils import (
     load,
     validate_path,
     CustomException,
+    connect_database,
+    description,
 )
 
 
@@ -247,6 +250,87 @@ class Loader:
                 "Cannot be imported processed path as it is not found".capitalize()
             )
 
+    def upload_data_documents(self, type=None, collection=None, **kwargs):
+        X = kwargs["X"]
+        y = kwargs["y"]
+        lr = kwargs["lr"]
+
+        if type is not None:
+            collection.insert_many(
+                [
+                    {
+                        "image_size": "{}".format(X.size()),
+                        "imageX": X.tolist(),
+                        "Description": """This is the train data for independent variable X
+                        {}
+                        """.format(
+                            description
+                        ),
+                    },
+                    {
+                        "image_size": "{}".format(y.size()),
+                        "imageY": y.tolist(),
+                        "Description": """This is the train data for dependent variable Y
+                        {}
+                        """.format(
+                            description
+                        ),
+                    },
+                    {
+                        "image_size": "{}".format(lr.size()),
+                        "lowerY": lr.tolist(),
+                        "Description": """This is the train data for lower dependent variable Y
+                        {}
+                        """.format(
+                            description
+                        ),
+                    },
+                ]
+            )
+
+    def store_database(self):
+        is_access, client = connect_database()
+        if is_access:
+            self.database = client["CCGAN"]
+
+            for collection in ["train_data", "valid_data"]:
+                if collection in self.database.list_collection_names():
+                    self.database[collection].drop()
+
+                    print("Dropped the collection {}".format(collection))
+
+            if validate_path(path=self.CONFIG["path"]["PROCESSED_IMAGE_DATA_PATH"]):
+                self.path = self.CONFIG["path"]["PROCESSED_IMAGE_DATA_PATH"]
+
+                self.train_dataloader = load(
+                    filename=os.path.join(self.path, "train_dataloader.pkl")
+                )
+                self.valid_dataloader = load(
+                    filename=os.path.join(self.path, "valid_dataloader.pkl")
+                )
+                for collection_name, dataloader in [
+                    ("train_data", self.train_dataloader),
+                    ("valid_data", self.valid_dataloader),
+                ]:
+                    for X, y, lr in dataloader:
+                        self.upload_data_documents(
+                            type=collection_name,
+                            collection=self.database[collection_name],
+                            X=X,
+                            y=y,
+                            lr=lr,
+                        )
+
+                print("Data is stored in the database".capitalize())
+
+            else:
+                raise CustomException(
+                    "Cannot be connected to the database as the dataloader cannot be found".capitalize()
+                )
+
+        else:
+            raise CustomException("Cannot be connected to the database".capitalize())
+
     @staticmethod
     def dataset_details():
         processed_data_path = config()["path"]["PROCESSED_IMAGE_DATA_PATH"]
@@ -318,6 +402,12 @@ if __name__ == "__main__":
         default=config()["dataloader"]["split_size"],
         help="Split ratio".capitalize(),
     )
+    parser.add_argument(
+        "--database",
+        type=bool,
+        default=config()["database"],
+        help="Database".capitalize(),
+    )
     args = parser.parse_args()
 
     loader = Loader(
@@ -327,12 +417,13 @@ if __name__ == "__main__":
         batch_size=args.batch_size,
         split_size=args.split_size,
     )
-    # try:
-    #     loader.unzip_folder()
-    # except CustomException as e:
-    #     print(e)
-    # except Exception as e:
-    #     print(e)
+
+    try:
+        loader.unzip_folder()
+    except CustomException as e:
+        print(e)
+    except Exception as e:
+        print(e)
 
     try:
         loader.create_dataloader()
@@ -357,3 +448,15 @@ if __name__ == "__main__":
     except Exception as e:
         print("An error occurred: ", e)
         traceback.print_exc()
+
+    if args.database:
+        try:
+            loader.store_database()
+        except CustomException as e:
+            print("An error occurred: ", e)
+            traceback.print_exc()
+        except Exception as e:
+            print("An error occurred: ", e)
+            traceback.print_exc()
+
+        # loader.retrive()
