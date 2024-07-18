@@ -12,7 +12,7 @@ class EncoderBlock(nn.Module):
         in_channels: int = 3,
         out_channels: int = 64,
         batchnorm: bool = True,
-        leakyrelu: bool = False,
+        leakyrelu: bool = True,
     ):
         super(EncoderBlock, self).__init__()
 
