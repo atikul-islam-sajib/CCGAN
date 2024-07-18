@@ -7,7 +7,7 @@ from torchsummary import summary
 
 sys.path.append("./")
 
-from utils import config
+from utils import config, parse_tuple
 from discriminator_block import DiscriminatorBlock
 
 
@@ -49,10 +49,6 @@ class Discriminator(nn.Module):
             return self.model(x)
         else:
             raise TypeError("Input must be a torch.Tensor".capitalize())
-
-
-def parse_tuple(string):
-    return tuple(map(int, string.strip("()").split(",")))
 
 
 if __name__ == "__main__":

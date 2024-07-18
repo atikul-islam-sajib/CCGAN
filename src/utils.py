@@ -10,6 +10,10 @@ USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
 
 
+def parse_tuple(string):
+    return tuple(map(int, string.strip("()").split(",")))
+
+
 class CustomException(Exception):
     def __init__(self, message: str):
         self.message = message

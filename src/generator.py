@@ -5,7 +5,7 @@ import torch.nn as nn
 
 sys.path.append("./")
 
-from utils import config
+from utils import config, parse_tuple
 from encoder import EncoderBlock
 from decoder import DecoderBlock
 
@@ -129,9 +129,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generator for CCGAN".title())
     parser.add_argument(
         "--image_size",
-        type=tuple,
+        type=parse_tuple,
         default=image,
-        help="Image size".capitalize(),
+        help="Image size (e.g., '(1,3,128,128)')".capitalize(),
     )
 
     args = parser.parse_args()
@@ -140,14 +140,14 @@ if __name__ == "__main__":
 
     assert (
         netG(
-            torch.randn(batch_size, channels, image_size, image_size),
-            torch.randn(batch_size, channels, image_size // 4, image_size // 4),
+            torch.randn(args.image_size),
+            torch.randn(
+                args.image_size[0],
+                args.image_size[1],
+                args.image_size[2] // 4,
+                args.image_size[3] // 4,
+            ),
         ).size()
-    ) == (
-        batch_size,
-        channels,
-        image_size,
-        image_size,
-    ), "Image size is incorrect in Generator".capitalize()
+    ) == (args.image_size), "Image size is incorrect in Generator".capitalize()
 
     print("Total params of the netG = {}".format(Generator.total_params(netG)))
