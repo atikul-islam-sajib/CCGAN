@@ -7,12 +7,12 @@ def requirements():
 
 
 setup(
-    name="contextEncoder",
+    name="CCGAN",
     version="0.1.0",
     description="A deep learning project that is build for GAN based image Inpainting for the Image dataset",
     author="Atikul Islam Sajib",
     author_email="atikul.sajib@ptb.de",
-    url="https://github.com/atikul-islam-sajib/contextEncoder.git",  # Update with your project's GitHub repository URL
+    url="https://github.com/atikul-islam-sajib/CCGAN.git",  # Update with your project's GitHub repository URL
     packages=find_packages(),
     install_requires=requirements(),
     classifiers=[
@@ -21,10 +21,10 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3.9",
     ],
-    keywords="U-Net machine-learning",
+    keywords="CCGAN : machine-learning",
     project_urls={
-        "Bug Tracker": "https://github.com/atikul-islam-sajib/contextEncoder.git/issues",
-        "Documentation": "https://github.com/atikul-islam-sajib/contextEncoder.git",
-        "Source Code": "https://github.com/atikul-islam-sajib/contextEncoder.git",
+        "Bug Tracker": "https://github.com/atikul-islam-sajib/CCGAN.git/issues",
+        "Documentation": "https://github.com/atikul-islam-sajib/CCGAN.git",
+        "Source Code": "https://github.com/atikul-islam-sajib/CCGAN.git",
     },
 )
