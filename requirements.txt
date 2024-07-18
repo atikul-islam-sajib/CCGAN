@@ -6,6 +6,7 @@ mlflow
 numpy
 opencv-python
 pillow
+python-dotenv
 PyYAML
 scikit-learn
 torch
