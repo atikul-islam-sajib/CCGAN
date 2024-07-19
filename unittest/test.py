@@ -6,10 +6,10 @@ import unittest
 sys.path.append("./src")
 
 from helper import helpers
-from utils import config, load
 from generator import Generator
 from loss import AdversarialLoss
 from discriminator import Discriminator
+from utils import config, load, connect_database
 
 
 class UnitTest(unittest.TestCase):
@@ -200,6 +200,12 @@ class UnitTest(unittest.TestCase):
         assert self.init["optimizerD"].__class__ == torch.optim.Adam
 
         assert self.init["loss"].__class__ == AdversarialLoss
+
+    def test_mongoDB(self):
+        is_connect, _ = connect_database()
+        self.assertEqual(
+            is_connect, True
+        )  # Must be change the config.yml file "database" where "USERNAME": "zyz" and "PASSWORD": "123456"
 
 
 if __name__ == "__main__":
