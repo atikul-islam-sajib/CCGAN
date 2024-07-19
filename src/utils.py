@@ -3,6 +3,7 @@ import yaml
 import joblib
 from pymongo.mongo_client import MongoClient
 
+
 def parse_tuple(string):
     return tuple(map(int, string.strip("()").split(",")))
 
@@ -47,7 +48,7 @@ def validate_path(path: str):
 def connect_database():
     USERNAME = config()["database"]["USERNAME"]
     PASSWORD = config()["database"]["PASSWORD"]
-    if (username is not None) and (password is bot None):
+    if (USERNAME is not None) and (PASSWORD is not None):
         uri = f"mongodb+srv://{USERNAME}:{PASSWORD}@cluster0.ym14neq.mongodb.net/?appName=Cluster0"
 
     client = MongoClient(uri)
