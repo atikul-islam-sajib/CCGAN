@@ -1,14 +1,7 @@
 import os
 import yaml
 import joblib
-from dotenv import load_dotenv
 from pymongo.mongo_client import MongoClient
-
-load_dotenv()
-
-USERNAME = os.getenv("USERNAME")
-PASSWORD = os.getenv("PASSWORD")
-
 
 def parse_tuple(string):
     return tuple(map(int, string.strip("()").split(",")))
@@ -52,12 +45,10 @@ def validate_path(path: str):
 
 
 def connect_database():
-    username = config()["database"]["USERNAME"]
-    password = config()["database"]["PASSWORD"]
-    if (username is None) and (password is None):
+    USERNAME = config()["database"]["USERNAME"]
+    PASSWORD = config()["database"]["PASSWORD"]
+    if (username is not None) and (password is bot None):
         uri = f"mongodb+srv://{USERNAME}:{PASSWORD}@cluster0.ym14neq.mongodb.net/?appName=Cluster0"
-    else:
-        uri = f"mongodb+srv://{username}:{password}@cluster0.ym14neq.mongodb.net/?appName=Cluster0"
 
     client = MongoClient(uri)
 
