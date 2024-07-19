@@ -1,7 +1,10 @@
 import os
+import sys
 import yaml
 import joblib
 from pymongo.mongo_client import MongoClient
+
+sys.path.append("./")
 
 
 def parse_tuple(string):
