@@ -52,7 +52,12 @@ def validate_path(path: str):
 
 
 def connect_database():
-    uri = f"mongodb+srv://{USERNAME}:{PASSWORD}@cluster0.ym14neq.mongodb.net/?appName=Cluster0"
+    username = config()["database"]["USERNAME"]
+    password = config()["database"]["PASSWORD"]
+    if (username is None) and (password is None):
+        uri = f"mongodb+srv://{USERNAME}:{PASSWORD}@cluster0.ym14neq.mongodb.net/?appName=Cluster0"
+    else:
+        uri = f"mongodb+srv://{username}:{password}@cluster0.ym14neq.mongodb.net/?appName=Cluster0"
 
     client = MongoClient(uri)
 
