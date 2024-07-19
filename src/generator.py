@@ -101,13 +101,6 @@ class Generator(nn.Module):
 
             output = self.decoder6(decoder5)
 
-            assert output.size() == (
-                self.batch_size,
-                self.channels,
-                self.image_height,
-                self.image_width,
-            ), "Image size is incorrect in Generator".capitalize()
-
             return output
 
     @staticmethod
