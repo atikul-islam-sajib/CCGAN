@@ -12,7 +12,7 @@ dataloader:
   mongoDB: False
 
 database:
-  USERNAME: "*****"
-  PASSWORD: "*****"
-  CLuSTER_URL: "cluster0.ym14neq.mongodb.net/?appName=Cluster0"
+  USERNAME: None         # Set Your USERNAME
+  PASSWORD: None         # Set Your PASSWORD
+  CLuSTER_URL: None      # Set Your Cluster e.g. "cluster0.ym14neq.mongodb.net/?appName=Cluster0"
 
