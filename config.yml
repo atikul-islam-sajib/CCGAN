@@ -14,5 +14,5 @@ dataloader:
 database:
   USERNAME: None         # Set Your USERNAME
   PASSWORD: None         # Set Your PASSWORD
-  CLuSTER_URL: None      # Set Your Cluster e.g. "cluster0.ym14neq.mongodb.net/?appName=Cluster0"
+  CLUSTER_URL: None      # Set Your Cluster e.g. "cluster0.ym14neq.mongodb.net/?appName=Cluster0"
 
