@@ -98,17 +98,14 @@ class Loader:
         self.directory = os.path.join(
             self.CONFIG["path"]["RAW_IMAGE_DATA_PATH"], "dataset"
         )
-        assert (
-            self.directory.split("/")[-1] == "dataset"
-        ), "Directory name should be dataset"
+        
+        assert self.directory.endswith("dataset"), "Directory name should be 'dataset'"
 
         self.X = os.path.join(self.directory, "X")
         self.y = os.path.join(self.directory, "y")
 
-        print(self.X, self.y)
-
         assert (
-            self.X.split("/")[-1] == "X" and self.y.split("/")[-1] == "y"
+            self.X.endswith("X") and self.y.endswith("y")
         ), "Directory name should be X and y"
 
         for _, image in tqdm(enumerate(os.listdir(self.X))):
@@ -459,5 +456,3 @@ if __name__ == "__main__":
         except Exception as e:
             print("An error occurred: ", e)
             traceback.print_exc()
-
-        # loader.retrive()
