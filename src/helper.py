@@ -30,7 +30,7 @@ def load_dataloader():
         )
 
 
-def helpers(**kwargs):
+def helpers(**kwargs: dict):
     lr = kwargs["lr"]
     adam = kwargs["adam"]
     SGD = kwargs["SGD"]
@@ -85,6 +85,10 @@ def helpers(**kwargs):
 
 
 if __name__ == "__main__":
+    batch_size = config()["dataloader"]["batch_size"]
+    channels = config()["dataloader"]["channels"]
+    image_size = config()["dataloader"]["image_size"]
+
     init = helpers(lr=2e-4, adam=True, SGD=True, momentum=0.9, beta1=0.5, beta2=0.999)
 
     assert init["train_dataloader"].__class__ == torch.utils.data.DataLoader
@@ -93,12 +97,23 @@ if __name__ == "__main__":
     assert init["netG"].__class__ == Generator
     assert init["netD"].__class__ == Discriminator
 
+    assert init["netG"](
+        torch.randn(batch_size, channels, image_size, image_size),
+        torch.randn(batch_size, channels, image_size // 4, image_size // 4),
+    ).size() == torch.Size([batch_size, channels, image_size, image_size])
+
+    assert init["netD"](
+        torch.randn(batch_size, channels, image_size, image_size)
+    ).size() == torch.Size(
+        [
+            batch_size,
+            channels // channels,
+            image_size // 16,
+            image_size // 16,
+        ]
+    )
+
     assert init["optimizerG"].__class__ == torch.optim.Adam
     assert init["optimizerD"].__class__ == torch.optim.Adam
 
     assert init["loss"].__class__ == AdversarialLoss
-
-    print(init["netD"](torch.randn(1, 3, 128, 128)).size())
-    image = torch.randn(1, 3, 128, 128)
-    lr = torch.randn(1, 3, 32, 32)
-    print(init["netG"](image, lr).size())
