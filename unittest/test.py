@@ -72,10 +72,6 @@ class UnitTest(unittest.TestCase):
         self.assertEqual(self.total_data1, self.total_data2)
 
     def test_lr_image_data(self):
-        self.image_size = config()["dataloader"]["image_size"]
-        self.channels = config()["dataloader"]["channels"]
-        self.batch_size = config()["dataloader"]["batch_size"]
-
         _, _, lr_image = next(iter(self.train_dataloader))
 
         self.assertEqual(
@@ -205,7 +201,7 @@ class UnitTest(unittest.TestCase):
         is_connect, _ = connect_database()
         self.assertEqual(
             is_connect, True
-        )  # Must be change the config.yml file "database" where "USERNAME": "zyz" and "PASSWORD": "123456"
+        )  # Make sure to change the config.yml file "database" where "USERNAME": "zyz" and "PASSWORD": "123456"
 
 
 if __name__ == "__main__":
