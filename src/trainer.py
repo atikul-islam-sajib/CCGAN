@@ -29,6 +29,7 @@ from utils import (
     weight_init,
     device_init,
     CustomException,
+    clean_folder,
 )
 
 
@@ -147,6 +148,15 @@ class Trainer:
             except Exception as e:
                 print("An error occured while initializing dagshub: ", e)
                 traceback.print_exc()
+
+        try:
+            clean_folder()
+        except FileNotFoundError as e:
+            print("An error occured while cleaning the folder: ", e)
+            traceback.print_exc()
+        except Exception as e:
+            print("An error occured while cleaning the folder: ", e)
+            traceback.print_exc()
 
         self.loss = float("inf")
 
