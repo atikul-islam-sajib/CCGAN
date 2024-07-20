@@ -10,6 +10,7 @@ import numpy as np
 import argparse
 from tqdm import tqdm
 import torch.nn as nn
+import matplotlib.pyplot as plt
 from torch.optim.lr_scheduler import StepLR
 from torchvision.utils import save_image
 
@@ -17,7 +18,7 @@ warnings.filterwarnings("ignore")
 
 sys.path.append("./")
 
-from utils import config, weight_init, device_init, CustomException
+from utils import dump, load, config, weight_init, device_init, CustomException
 from helper import helpers
 from generator import Generator
 from discriminator import Discriminator
@@ -355,9 +356,39 @@ class Trainer:
             mlflow.pytorch.log_model(self.netG, "netG")
             mlflow.pytorch.log_model(self.netD, "netD")
 
+            try:
+                dump(
+                    value=self.history,
+                    filename=os.path.join(
+                        config()["path"]["METRICS_PATH"], "history.pkl"
+                    ),
+                )
+            except Exception as e:
+                print("An error occurred while logging the history: ", e)
+
     @staticmethod
     def display_history():
-        pass
+        metrics_path = os.path.join(config()["path"]["METRICS_PATH"], "history.pkl")
+        history = load(filename=metrics_path)
+
+        fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+        fig.suptitle("netG vs netD loss".title(), fontsize=16)
+
+        axes[0].plot(history["netG_loss"], label="netG_loss")
+        axes[0].legend()
+        axes[0].grid(which="both", linestyle="--")
+        axes[0].set_title("netG loss".title())
+        axes[0].set_xlabel("Epochs")
+        axes[0].set_ylabel("Loss")
+
+        axes[1].plot(history["netD_loss"], label="netD_loss")
+        axes[1].legend()
+        axes[1].grid(which="both", linestyle="--")
+        axes[1].set_title("netD loss".title())
+        axes[1].set_xlabel("Epochs")
+        axes[1].set_ylabel("Loss")
+
+        plt.show()
 
 
 if __name__ == "__main__":

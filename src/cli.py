@@ -236,6 +236,8 @@ def cli():
         except Exception as e:
             print("An error occurred: ", e)
             traceback.print_exc()
+        else:
+            Trainer.display_history()
 
         if args.database:
             try:

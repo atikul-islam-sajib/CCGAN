@@ -29,7 +29,7 @@ MLFlow:
   REPO_NAME: "CCGAN"
 
 trainer:
-  epochs: 1
+  epochs: 5
   lr: 0.001
   beta1: 0.5
   beta2: 0.999
@@ -46,5 +46,5 @@ trainer:
   elasticnet_regularization: False
   lr_scheduler: False
   verbose: True
-  mlflow: True
+  mlflow: False
 
