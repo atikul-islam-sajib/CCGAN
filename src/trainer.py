@@ -446,7 +446,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--elasticnet_regularization",
         type=bool,
-        default=config()["trainer"]["elastic_regularization"],
+        default=config()["trainer"]["elasticnet_regularization"],
         help="Use elastic loss".capitalize(),
     )
     parser.add_argument(
