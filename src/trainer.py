@@ -131,15 +131,16 @@ class Trainer:
                 optimizer=self.optimizerD, step_size=self.step_size, gamma=self.gamma
             )
 
-        try:
-            dagshub.init(
-                repo_owner=config()["MLFlow"]["MLFLOW_TRACKING_USERNAME"],
-                repo_name=config()["MLFlow"]["REPO_NAME"],
-                mlflow=self.mlflow,
-            )
-        except Exception as e:
-            print("An error occured while initializing dagshub: ", e)
-            traceback.print_exc()
+        if self.mlflow:
+            try:
+                dagshub.init(
+                    repo_owner=config()["MLFlow"]["MLFLOW_TRACKING_USERNAME"],
+                    repo_name=config()["MLFlow"]["REPO_NAME"],
+                    mlflow=self.mlflow,
+                )
+            except Exception as e:
+                print("An error occured while initializing dagshub: ", e)
+                traceback.print_exc()
 
         self.loss = float("inf")
 
