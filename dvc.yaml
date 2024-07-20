@@ -14,8 +14,22 @@ stages:
       - src/trainer.py
       - src/utils.py
       - ./config.yml
-    outs:
-      - ./data/:
-          persists: true
-      - ./artifacts/:
-          persists: true
+
+    # outs:
+    #   - ./data/:
+    #       persists: true
+    #   - ./artifacts/:
+    #       persists: true
+  
+  model_test:
+    cmd: python src/cli.py --mode test
+      deps:
+        - src/cli.py
+        - src/tester.py
+        - src/utils.py
+        - src/generator.py
+        - ./checkpoints/
+
+      # outs:
+      #   - ./artifacts/:
+      #       persists: true
