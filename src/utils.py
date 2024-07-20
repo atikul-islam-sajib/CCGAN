@@ -103,6 +103,15 @@ def weight_init(m):
         torch.nn.init.constant_(m.bias.data, 0.0)
 
 
+def device_init(device="cpu"):
+    if device == "cpu":
+        return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    elif device == "cuda":
+        return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    elif device == "mps":
+        return torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+
+
 description = """
 Fetch and process documents
 X = []

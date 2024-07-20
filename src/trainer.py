@@ -2,9 +2,11 @@ import sys
 import torch
 import argparse
 import torch.nn as nn
+from torch.optim.lr_scheduler import StepLR
 
 sys.path.append("./")
 
+from utils import config, weight_init, device_init, CustomException
 from helper import helpers
 from generator import Generator
 from discriminator import Discriminator
@@ -23,6 +25,7 @@ class Trainer:
         step_size: int = 20,
         gamma: float = 0.85,
         device: str = "cpu",
+        weight_initialization: bool = True,
         adam: bool = True,
         SGD: bool = False,
         l1_regularization: bool = False,
@@ -41,6 +44,7 @@ class Trainer:
         self.step_size = step_size
         self.gamma = gamma
         self.device = device
+        self.weight_initialization = weight_initialization
         self.adam = adam
         self.SGD = SGD
         self.l1_regularization = l1_regularization
@@ -49,6 +53,8 @@ class Trainer:
         self.lr_scheduler = lr_scheduler
         self.verbose = verbose
         self.mlflow = mlflow
+
+        self.device = device_init(device=self.device)
 
         self.init = helpers(
             lr=self.lr,
@@ -87,10 +93,75 @@ class Trainer:
         self.train_dataloader = self.init["train_dataloader"]
         self.valid_dataloader = self.init["valid_dataloader"]
 
-        self.netG = self.init["netG"]
-        self.netD = self.init["netD"]
+        self.netG = self.init["netG"].to(self.device)
+        self.netD = self.init["netD"].to(self.device)
+
+        if self.weight_initialization:
+            self.netG.apply(weight_init)
+            self.netD.apply(weight_init)
 
         self.optimizerG = self.init["optimizerG"]
         self.optimizerD = self.init["optimizerD"]
 
         self.adversarial_loss = self.init["loss"]
+
+        if self.lr_scheduler:
+            self.schedulerG = StepLR(
+                optimizer=self.optimizerG, step_size=self.step_size, gamma=self.gamma
+            )
+            self.schedulerD = StepLR(
+                optimizer=self.optimizerD, step_size=self.step_size, gamma=self.gamma
+            )
+
+    def l1(self, model: Discriminator):
+        pass
+
+    def l2(self, model: Discriminator):
+        pass
+
+    def elasticNet(self, model: Discriminator):
+        pass
+
+    def saved_checkpoints(self, **kwargs: dict):
+        pass
+
+    def saved_images(self, **kwargs: dict):
+        pass
+
+    def display_progress(self, **kwargs: dict):
+        pass
+
+    def update_train_generator(self, **kwargs: dict):
+        pass
+
+    def update_train_discriminator(self, **kwargs: dict):
+        pass
+
+    def train(self):
+        pass
+
+    @staticmethod
+    def display_history():
+        pass
+
+
+if __name__ == "__main__":
+    trainer = Trainer(
+        epochs=1,
+        lr=0.0002,
+        beta1=0.5,
+        beta2=0.999,
+        momentum=0.90,
+        weight_delacy=0.001,
+        step_size=20,
+        gamma=0.85,
+        device="mps",
+        adam=True,
+        SGD=False,
+        l1_regularization=False,
+        l2_regularization=False,
+        elasticnet_regularization=False,
+        lr_scheduler=False,
+        verbose=True,
+        mlflow=False,
+    )
