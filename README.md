@@ -114,7 +114,7 @@ The project is controlled via a command line interface (CLI) which allows for ru
 | Task                     | CUDA Command                                                                                                              | CPU Command                                                                                                              |
 |--------------------------|---------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
 | **Training a Model**     | `python cli.py --mode train --image_path "/path/to/dataset.zip" --batch_size 32 --image_size 128 --epochs 50 --lr 0.001 --adam True --device "cuda"` | `python cli.py --mode train --image_path "/path/to/dataset.zip" --batch_size 32 --image_size 128 --epochs 50 --lr 0.001 --adam True --device "cpu"` |
-| **Testing a Model**      | `python cli.py --mode test --model_path "/path/to/saved_model.pth" --device "cuda"`                                        | `python cli.py --mode test --model_path "/path/to/saved_model.pth" --device "cpu"`                                        |
+| **Testing a Model**      | `python cli.py --mode test --model "/path/to/saved_model.pth" --device "cuda"`                                        | `python cli.py --mode test --model "/path/to/saved_model.pth" --device "cpu"`                                        |
 
 All configuration arguments are defined in `config.yml`. If the user does not provide these arguments, default values from the configuration file will be used.
 
@@ -192,7 +192,7 @@ loader.create_dataloader()
 
 ##### To details about dataset
 ```python
-loader.plot_images()           # It will display the images from dataset
+loader.display_images()        # It will display the images from dataset
 ```
 
 #### Training the Model
@@ -220,7 +220,7 @@ trainer.train()
 ```python
 tester = Tester(
     device="cuda",            # Specify the device to test the model
-    model_path="best"         # Define the model, see the checkpoints->train_models if used
+    model="best"              # Define the model, see the checkpoints->train_models if used
 )
 test.test()
 ```
