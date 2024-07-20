@@ -277,6 +277,7 @@ class Trainer:
         return total_loss.item()
 
     def train(self):
+        mlflow.set_experiment("CCGAN".title())
         with mlflow.start_run(
             description="Context-Conditional Generative Adversarial Networks (CC-GANs) are conditional GANs where The Generator 𝐺 is trained to fill in a missing image"
         ) as run:
