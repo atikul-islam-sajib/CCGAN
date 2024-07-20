@@ -98,14 +98,14 @@ class Loader:
         self.directory = os.path.join(
             self.CONFIG["path"]["RAW_IMAGE_DATA_PATH"], "dataset"
         )
-        
+
         assert self.directory.endswith("dataset"), "Directory name should be 'dataset'"
 
         self.X = os.path.join(self.directory, "X")
         self.y = os.path.join(self.directory, "y")
 
-        assert (
-            self.X.endswith("X") and self.y.endswith("y")
+        assert self.X.endswith("X") and self.y.endswith(
+            "y"
         ), "Directory name should be X and y"
 
         for _, image in tqdm(enumerate(os.listdir(self.X))):
@@ -167,7 +167,7 @@ class Loader:
             dataset=list(
                 zip(dataset["X_test"], dataset["y_test"], lr_dataset["y_test"])
             ),
-            batch_size=self.batch_size,
+            batch_size=self.batch_size * 16,
             shuffle=True,
         )
 
@@ -197,11 +197,11 @@ class Loader:
     def plot_images():
         processed_data_path = config()["path"]["PROCESSED_IMAGE_DATA_PATH"]
         if validate_path(path=processed_data_path):
-            train_dataloader = load(
-                filename=os.path.join(processed_data_path, "train_dataloader.pkl")
+            valid_dataloader = load(
+                filename=os.path.join(processed_data_path, "valid_dataloader.pkl")
             )
 
-            X, y, lr = next(iter(train_dataloader))
+            X, y, lr = next(iter(valid_dataloader))
 
             num_of_rows = X.size(0) // 2
             num_of_columns = X.size(0) // num_of_rows
@@ -399,7 +399,7 @@ if __name__ == "__main__":
         default=config()["dataloader"]["split_size"],
         help="Split ratio".capitalize(),
     )
-    
+
     parser.add_argument(
         "--database",
         type=bool,
