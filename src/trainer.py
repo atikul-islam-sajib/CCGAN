@@ -170,7 +170,7 @@ class Trainer:
             self.loss1 = self.l1(model=model)
             self.loss2 = self.l2(model=model)
 
-            return self.weight_delacy * (self.loss1 + self.loss2)
+            return self.weight_decay * (self.loss1 + self.loss2)
 
         else:
             raise TypeError("model must be an instance of Discriminator".capitalize())
@@ -194,10 +194,11 @@ class Trainer:
                     os.path.join(config()["path"]["BEST_MODEL"], "bestmodel.pth"),
                 )
 
-        torch.save(
-            self.netG.state_dict(),
-            os.path.join(config()["path"]["TRAIN_MODELS"], f"netG{epoch}.pth"),
-        )
+        if epoch % self.threshold == 0:
+            torch.save(
+                self.netG.state_dict(),
+                os.path.join(config()["path"]["TRAIN_MODELS"], f"netG{epoch}.pth"),
+            )
 
     def saved_images(self, **kwargs: dict):
         epoch = kwargs["epoch"]
@@ -291,7 +292,7 @@ class Trainer:
                 self.netG_loss = []
                 self.netD_loss = []
 
-                for index, (X, y, lr_image) in enumerate(self.train_dataloader):
+                for _, (X, y, lr_image) in enumerate(self.train_dataloader):
                     X = X.to(self.device)
                     y = y.to(self.device)
                     lr_image = lr_image.to(self.device)
@@ -314,7 +315,7 @@ class Trainer:
                     netD_loss=np.mean(self.netD_loss),
                 )
 
-                if epoch % self.step_size == 0:
+                if epoch % self.threshold == 0:
                     self.saved_images(epoch=epoch + 1)
 
                 self.saved_checkpoints(
@@ -472,6 +473,12 @@ if __name__ == "__main__":
         help="Gamma for the scheduler".capitalize(),
     )
     parser.add_argument(
+        "--threshold",
+        type=float,
+        default=config()["trainer"]["threshold"],
+        help="threshold for the model checkpoints".capitalize(),
+    )
+    parser.add_argument(
         "--device",
         type=str,
         default=config()["trainer"]["device"],
@@ -543,6 +550,7 @@ if __name__ == "__main__":
         weight_decay=args.weight_decay,
         step_size=args.step_size,
         gamma=args.gamma,
+        threshold=args.threshold,
         device=args.device,
         adam=args.adam,
         SGD=args.SGD,
