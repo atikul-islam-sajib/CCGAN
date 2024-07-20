@@ -144,7 +144,7 @@ All configuration arguments are defined in `config.yml`. If the user does not pr
 
 
         database:
-            USERNAME: None             	                            # Set Your USERNAME
+            USERNAME: None             	                           # Set Your USERNAME
             PASSWORD: None                                            # Set Your PASSWORD
             CLUSTER_URL: None                                         # Set Your Cluster e.g. "cluster0.ym14neq.mongodb.net/?appName=Cluster0"
 
