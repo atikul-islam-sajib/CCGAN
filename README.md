@@ -135,12 +135,12 @@ All configuration arguments are defined in `config.yml`. If the user does not pr
 
 
         dataloader:
-            image_path: "./data/raw/dataset.zip"        # Path to the dataset
-            channels: 3                                 # Number of image channels (e.g., RGB), it only works for RGB image
-            image_size: 128                             # Possible sizes to which images will be resized (128, 256, 512)
-            batch_size: 1                               # Number of images per batch
-            split_size: 0.20                            # Proportion of the dataset to use for validation
-            mongoDB: False                              # Use MongoDB for dataset storage
+            image_path: "./data/raw/dataset.zip"                      # Path to the dataset
+            channels: 3                                               # Number of image channels (e.g., RGB), it only works for RGB image
+            image_size: 128                                           # Possible sizes to which images will be resized (128, 256, 512)
+            batch_size: 1                                             # Number of images per batch
+            split_size: 0.20                                          # Proportion of the dataset to use for validation
+            mongoDB: False                                            # Use MongoDB for dataset storage
 
 
         database:
