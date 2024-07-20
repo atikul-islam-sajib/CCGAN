@@ -1,6 +1,7 @@
 import os
 import sys
 import torch
+import mlflow
 import warnings
 import traceback
 import torch.nn as nn
@@ -264,51 +265,82 @@ class Trainer:
         return total_loss.item()
 
     def train(self):
-        for epoch in tqdm(range(self.epochs)):
-            self.netG_loss = []
-            self.netD_loss = []
+        with mlflow.start_run(
+            description="Context-Conditional Generative Adversarial Networks (CC-GANs) are conditional GANs where The Generator 𝐺 is trained to fill in a missing image"
+        ) as run:
+            for epoch in tqdm(range(self.epochs)):
+                self.netG_loss = []
+                self.netD_loss = []
 
-            for index, (X, y, lr_image) in enumerate(self.train_dataloader):
-                X = X.to(self.device)
-                y = y.to(self.device)
-                lr_image = lr_image.to(self.device)
+                for index, (X, y, lr_image) in enumerate(self.train_dataloader):
+                    X = X.to(self.device)
+                    y = y.to(self.device)
+                    lr_image = lr_image.to(self.device)
 
-                self.netD_loss.append(
-                    self.update_train_discriminator(X=X, y=y, lr_image=lr_image)
+                    self.netD_loss.append(
+                        self.update_train_discriminator(X=X, y=y, lr_image=lr_image)
+                    )
+
+                    self.netG_loss.append(
+                        self.update_train_generator(X=X, y=y, lr_image=lr_image)
+                    )
+
+                if self.lr_scheduler:
+                    self.schedulerG.step()
+                    self.schedulerD.step()
+
+                self.display_progress(
+                    epoch=epoch + 1,
+                    netG_loss=np.mean(self.netG_loss),
+                    netD_loss=np.mean(self.netD_loss),
                 )
 
-                self.netG_loss.append(
-                    self.update_train_generator(X=X, y=y, lr_image=lr_image)
+                if epoch % self.step_size == 0:
+                    self.saved_images(epoch=epoch + 1)
+
+                self.saved_checkpoints(
+                    epoch=epoch + 1,
+                    netG_loss=np.mean(self.netG_loss),
+                    netD_loss=np.mean(self.netD_loss),
                 )
 
-            if self.lr_scheduler:
-                self.schedulerG.step()
-                self.schedulerD.step()
+                try:
+                    self.history["netG_loss"].append(np.mean(self.netG_loss))
+                    self.history["netD_loss"].append(np.mean(self.netD_loss))
+                except CustomException as e:
+                    print("An error occurred: ", e)
+                    traceback.print_exc()
+                except Exception as e:
+                    print("An error occurred: ", e)
+                    traceback.print_exc()
 
-            self.display_progress(
-                epoch=epoch + 1,
-                netG_loss=np.mean(self.netG_loss),
-                netD_loss=np.mean(self.netD_loss),
-            )
+                mlflow.log_params(
+                    {
+                        "epoch": self.epochs,
+                        "lr": self.lr,
+                        "beta1": self.beta1,
+                        "beta2": self.beta2,
+                        "momentum": self.momentum,
+                        "weight_delacy": self.weight_delacy,
+                        "step_size": self.step_size,
+                        "gamma": self.gamma,
+                        "device": self.device,
+                        "adam": self.adam,
+                        "SGD": self.SGD,
+                        "pixelLoss": self.pixelLoss,
+                        "l1_regularization": self.l1_regularization,
+                        "l2_regularization": self.l2_regularization,
+                        "lr_scheduler": self.lr_scheduler,
+                        "verbose": self.verbose,
+                        "MLFlow": self.mlflow,
+                    }
+                )
 
-            if epoch % self.step_size == 0:
-                self.saved_images(epoch=epoch + 1)
+                mlflow.log_metric("netG_loss", np.mean(self.netG_loss), step=epoch + 1)
+                mlflow.log_metric("netD_loss", np.mean(self.netD_loss), step=epoch + 1)
 
-            self.saved_checkpoints(
-                epoch=epoch + 1,
-                netG_loss=np.mean(self.netG_loss),
-                netD_loss=np.mean(self.netD_loss),
-            )
-
-            try:
-                self.history["netG_loss"].append(np.mean(self.netG_loss))
-                self.history["netD_loss"].append(np.mean(self.netD_loss))
-            except CustomException as e:
-                print("An error occurred: ", e)
-                traceback.print_exc()
-            except Exception as e:
-                print("An error occurred: ", e)
-                traceback.print_exc()
+            mlflow.pytorch.log_model(self.netG, "netG")
+            mlflow.pytorch.log_model(self.netD, "netD")
 
     @staticmethod
     def display_history():
@@ -316,25 +348,139 @@ class Trainer:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Train the model for CCGAN".capitalize()
+    )
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=config()["trainer"]["epochs"],
+        help="Number of epochs to train the model".capitalize(),
+    )
+    parser.add_argument(
+        "--lr",
+        type=float,
+        default=config()["trainer"]["lr"],
+        help="Learning rate for the model".capitalize(),
+    )
+    parser.add_argument(
+        "--beta1",
+        type=float,
+        default=config()["trainer"]["beta1"],
+        help="Beta1 for Adam".capitalize(),
+    )
+    parser.add_argument(
+        "--beta2",
+        type=float,
+        default=config()["trainer"]["beta2"],
+        help="Beta2 for Adam".capitalize(),
+    )
+    parser.add_argument(
+        "--momentum",
+        type=float,
+        default=config()["trainer"]["momentum"],
+        help="Momentum for SGD".capitalize(),
+    )
+    parser.add_argument(
+        "--weight_decay",
+        type=float,
+        default=config()["trainer"]["weight_decay"],
+        help="Weight decay for the model".capitalize(),
+    )
+    parser.add_argument(
+        "--step_size",
+        type=int,
+        default=config()["trainer"]["step_size"],
+        help="Step size for the scheduler".capitalize(),
+    )
+    parser.add_argument(
+        "--gamma",
+        type=float,
+        default=config()["trainer"]["gamma"],
+        help="Gamma for the scheduler".capitalize(),
+    )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default=config()["trainer"]["device"],
+        help="Device to train the model on".capitalize(),
+    )
+    parser.add_argument(
+        "--adam",
+        type=bool,
+        default=config()["trainer"]["adam"],
+        help="Use Adam optimizer".capitalize(),
+    )
+    parser.add_argument(
+        "--SGD",
+        type=bool,
+        default=config()["trainer"]["SGD"],
+        help="Use SGD optimizer".capitalize(),
+    )
+    parser.add_argument(
+        "--pixelLoss",
+        type=bool,
+        default=config()["trainer"]["pixelLoss"],
+        help="Use pixel loss".capitalize(),
+    )
+    parser.add_argument(
+        "--l1_regularization",
+        type=bool,
+        default=config()["trainer"]["l1_regularization"],
+        help="Use L1 loss".capitalize(),
+    )
+    parser.add_argument(
+        "--l2_regularization",
+        type=bool,
+        default=config()["trainer"]["l2_regularization"],
+        help="Use L2 loss".capitalize(),
+    )
+    parser.add_argument(
+        "--elastic_regularization",
+        type=bool,
+        default=config()["trainer"]["elastic_regularization"],
+        help="Use elastic loss".capitalize(),
+    )
+    parser.add_argument(
+        "lr_scheduler",
+        type=bool,
+        default=config()["trainer"]["lr_scheduler"],
+        help="Use lr scheduler".capitalize(),
+    )
+    parser.add_argument(
+        "--verbose",
+        type=bool,
+        default=config()["trainer"]["verbose"],
+        help="Verbose".capitalize(),
+    )
+    parser.add_argument(
+        "--mlflow",
+        type=bool,
+        default=config()["trainer"]["mlflow"],
+        help="Use mlflow".capitalize(),
+    )
+
+    args = parser.parse_args()
+
     trainer = Trainer(
-        epochs=500,
-        lr=0.001,
-        beta1=0.5,
-        beta2=0.999,
-        momentum=0.90,
-        weight_delacy=0.001,
-        step_size=20,
-        gamma=0.85,
-        device="mps",
-        adam=True,
-        SGD=False,
-        pixelLoss=True,
-        l1_regularization=False,
-        l2_regularization=False,
-        elasticnet_regularization=False,
-        lr_scheduler=False,
-        verbose=True,
-        mlflow=False,
+        epochs=args.epochs,
+        lr=args.lr,
+        beta1=args.beta1,
+        beta2=args.beta2,
+        momentum=args.momentum,
+        weight_delacy=args.weight_delacy,
+        step_size=args.step_size,
+        gamma=args.gamma,
+        device=args.device,
+        adam=args.adam,
+        SGD=args.SGD,
+        pixelLoss=args.pixelLoss,
+        l1_regularization=args.l1_regularization,
+        l2_regularization=args.l2_regularization,
+        elasticnet_regularization=args.elasticnet_regularization,
+        lr_scheduler=args.lr_scheduler,
+        verbose=args.verbose,
+        mlflow=args.mlflow,
     )
 
     trainer.train()
