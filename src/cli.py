@@ -165,6 +165,18 @@ def cli():
         default=config()["trainer"]["mlflow"],
         help="Use mlflow".capitalize(),
     )
+    parser.add_argument(
+        "--model",
+        type=str,
+        default=config()["tester"]["model"],
+        help="Model to be tested".capitalize(),
+    )
+    parser.add_argument(
+        "--dataloader",
+        type=str,
+        default=config()["tester"]["dataloader"],
+        help="Data loader to be used".capitalize(),
+    )
 
     args = parser.parse_args()
 
