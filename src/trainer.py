@@ -5,6 +5,7 @@ import dagshub
 import mlflow
 import warnings
 import traceback
+import pandas as pd
 import torch.nn as nn
 import numpy as np
 import argparse
@@ -141,6 +142,9 @@ class Trainer:
             traceback.print_exc()
 
         self.loss = float("inf")
+
+        self.total_netG_loss = []
+        self.total_netD_loss = []
 
         self.history = {"netG_loss": [], "netD_loss": []}
 
@@ -321,6 +325,10 @@ class Trainer:
                 try:
                     self.history["netG_loss"].append(np.mean(self.netG_loss))
                     self.history["netD_loss"].append(np.mean(self.netD_loss))
+
+                    self.total_netG_loss.append(np.mean(self.netG_loss))
+                    self.total_netD_loss.append(np.mean(self.netD_loss))
+
                 except CustomException as e:
                     print("An error occurred: ", e)
                     traceback.print_exc()
@@ -363,8 +371,27 @@ class Trainer:
                         config()["path"]["METRICS_PATH"], "history.pkl"
                     ),
                 )
+                print(
+                    "Model history saved in the folder {}".format(
+                        config()["path"]["METRICS_PATH"]
+                    )
+                )
             except Exception as e:
                 print("An error occurred while logging the history: ", e)
+
+            else:
+                pd.DataFrame(
+                    {
+                        "netG_loss": self.total_netG_loss,
+                        "netD_loss": self.total_netD_loss,
+                    }
+                ).to_csv(os.path.join(config()["path"]["FILES_PATH"], "model_loss.csv"))
+
+                print(
+                    "Model loss saved in the format of csv in the directory {}".format(
+                        config()["path"]["FILES_PATH"]
+                    )
+                )
 
     @staticmethod
     def display_history():
