@@ -13,7 +13,7 @@ dataloader:
   image_path: "./data/raw/dataset.zip"
   channels: 3
   image_size: 128
-  batch_size: 2
+  batch_size: 1
   split_size: 0.20
   mongoDB: False
 
@@ -25,27 +25,32 @@ database:
 MLFlow:
   MLFLOW_TRACKING_URL: "https://dagshub.com/atikul-islam-sajib/CCGAN.mlflow"  # Set your own MLFlow Tracking URL
   MLFLOW_TRACKING_USERNAME: "atikul-islam-sajib"                              # Set your own MLFlow Tracking Username
-  MLFLOW_TRACKING_PASSWORD: "*********"                                       # Set your own MLFlow Tracking Password
+  MLFLOW_TRACKING_PASSWORD: "0c9062f98631dcdb3a9b2d56ebba7ff850a19139"                                       # Set your own MLFlow Tracking Password
   REPO_NAME: "CCGAN"
 
 trainer:
-  epochs: 5
-  lr: 0.001
+  epochs: 200
+  lr: 0.0002
   beta1: 0.5
   beta2: 0.999
   momentum: 0.90
   weight_decay: 0.001
-  step_size: 2
+  step_size: 50
   gamma: 0.85
-  threshold: 2
+  threshold: 50
   device: "mps"
   adam: True
   SGD: False
-  pixelLoss: True
+  pixelLoss: False
   l1_regularization: False
   l2_regularization: False
   elasticnet_regularization: False
   lr_scheduler: False
   verbose: True
-  mlflow: False
+  mlflow: True
+
+tester:
+  model: "best"
+  dataloader: "valid"
+  device: "cpu"
 
