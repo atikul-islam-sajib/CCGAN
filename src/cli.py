@@ -177,6 +177,27 @@ def cli():
             split_size=args.split_size,
         )
 
+        trainer = Trainer(
+            epochs=args.epochs,
+            lr=args.lr,
+            beta1=args.beta1,
+            beta2=args.beta2,
+            momentum=args.momentum,
+            weight_decay=args.weight_decay,
+            step_size=args.step_size,
+            gamma=args.gamma,
+            device=args.device,
+            adam=args.adam,
+            SGD=args.SGD,
+            pixelLoss=args.pixelLoss,
+            l1_regularization=args.l1_regularization,
+            l2_regularization=args.l2_regularization,
+            elasticnet_regularization=args.elasticnet_regularization,
+            lr_scheduler=args.lr_scheduler,
+            verbose=args.verbose,
+            mlflow=args.mlflow,
+        )
+
         try:
             loader.unzip_folder()
         except CustomException as e:
@@ -211,32 +232,10 @@ def cli():
             traceback.print_exc()
 
         try:
-            trainer = Trainer(
-                epochs=args.epochs,
-                lr=args.lr,
-                beta1=args.beta1,
-                beta2=args.beta2,
-                momentum=args.momentum,
-                weight_decay=args.weight_decay,
-                step_size=args.step_size,
-                gamma=args.gamma,
-                device=args.device,
-                adam=args.adam,
-                SGD=args.SGD,
-                pixelLoss=args.pixelLoss,
-                l1_regularization=args.l1_regularization,
-                l2_regularization=args.l2_regularization,
-                elasticnet_regularization=args.elasticnet_regularization,
-                lr_scheduler=args.lr_scheduler,
-                verbose=args.verbose,
-                mlflow=args.mlflow,
-            )
+            trainer.train()
         except Exception as e:
             print("An error occurred: ", e)
             traceback.print_exc()
-
-        else:
-            trainer.train()
 
         if args.database:
             try:
