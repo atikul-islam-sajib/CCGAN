@@ -83,7 +83,7 @@ def clean_folder():
         valid_output_images,
     ]:
         if validate_path(path=path):
-            for file in os.path.listdir(path):
+            for file in os.listdir(path):
                 os.remove(os.path.join(path, file))
 
             print("{}: deleted all the old files".capitalize())
