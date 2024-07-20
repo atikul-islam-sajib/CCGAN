@@ -1,12 +1,17 @@
 import os
 import sys
 import torch
+import warnings
+import traceback
+import torch.nn as nn
 import numpy as np
 import argparse
 from tqdm import tqdm
 import torch.nn as nn
 from torch.optim.lr_scheduler import StepLR
 from torchvision.utils import save_image
+
+warnings.filterwarnings("ignore")
 
 sys.path.append("./")
 
@@ -28,10 +33,12 @@ class Trainer:
         weight_delacy: float = 0.001,
         step_size: int = 20,
         gamma: float = 0.85,
+        threshold: int = 50,
         device: str = "cpu",
         weight_initialization: bool = True,
         adam: bool = True,
         SGD: bool = False,
+        pixelLoss: bool = False,
         l1_regularization: bool = False,
         l2_regularization: bool = False,
         elasticnet_regularization: bool = False,
@@ -47,10 +54,12 @@ class Trainer:
         self.weight_delacy = weight_delacy
         self.step_size = step_size
         self.gamma = gamma
+        self.threshold = threshold
         self.device = device
         self.weight_initialization = weight_initialization
         self.adam = adam
         self.SGD = SGD
+        self.pixelLoss = pixelLoss
         self.l1_regularization = l1_regularization
         self.l2_regularization = l2_regularization
         self.elasticnet_regularization = elasticnet_regularization
@@ -117,6 +126,8 @@ class Trainer:
                 optimizer=self.optimizerD, step_size=self.step_size, gamma=self.gamma
             )
 
+        self.loss = float("inf")
+
         self.history = {"netG_loss": [], "netD_loss": []}
 
     def l1(self, model: Discriminator):
@@ -146,7 +157,28 @@ class Trainer:
             raise TypeError("model must be an instance of Discriminator".capitalize())
 
     def saved_checkpoints(self, **kwargs: dict):
-        pass
+        epoch = kwargs["epoch"]
+        netG_loss = kwargs["netG_loss"]
+        netD_loss = kwargs["netD_loss"]
+
+        if epoch > self.threshold:
+            if self.loss > netG_loss:
+                self.loss = netG_loss
+
+                torch.save(
+                    {
+                        "netG": self.netG.state_dict(),
+                        "epoch": epoch,
+                        "netG_loss": netG_loss,
+                        "netD_loss": netD_loss,
+                    },
+                    os.path.join(config()["path"]["BEST_MODEL"], "bestmodel.pth"),
+                )
+
+        torch.save(
+            self.netG.state_dict(),
+            os.path.join(config()["path"]["TRAIN_MODELS"], f"netG{epoch}.pth"),
+        )
 
     def saved_images(self, **kwargs: dict):
         epoch = kwargs["epoch"]
@@ -195,6 +227,10 @@ class Trainer:
         generated_loss = self.adversarial_loss(
             generated_predict, torch.ones_like(generated_predict)
         )
+
+        if self.pixelLoss:
+            pixel_loss = torch.abs(generated_image - y).mean()
+            generated_loss += pixel_loss
 
         generated_loss.backward()
         self.optimizerG.step()
@@ -255,8 +291,24 @@ class Trainer:
                 netD_loss=np.mean(self.netD_loss),
             )
 
-            if self.epochs % self.step_size:
+            if epoch % self.step_size == 0:
                 self.saved_images(epoch=epoch + 1)
+
+            self.saved_checkpoints(
+                epoch=epoch + 1,
+                netG_loss=np.mean(self.netG_loss),
+                netD_loss=np.mean(self.netD_loss),
+            )
+
+            try:
+                self.history["netG_loss"].append(np.mean(self.netG_loss))
+                self.history["netD_loss"].append(np.mean(self.netD_loss))
+            except CustomException as e:
+                print("An error occurred: ", e)
+                traceback.print_exc()
+            except Exception as e:
+                print("An error occurred: ", e)
+                traceback.print_exc()
 
     @staticmethod
     def display_history():
@@ -265,8 +317,8 @@ class Trainer:
 
 if __name__ == "__main__":
     trainer = Trainer(
-        epochs=1,
-        lr=0.0002,
+        epochs=500,
+        lr=0.001,
         beta1=0.5,
         beta2=0.999,
         momentum=0.90,
@@ -276,6 +328,7 @@ if __name__ == "__main__":
         device="mps",
         adam=True,
         SGD=False,
+        pixelLoss=True,
         l1_regularization=False,
         l2_regularization=False,
         elasticnet_regularization=False,
