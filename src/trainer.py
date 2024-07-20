@@ -1,6 +1,7 @@
 import os
 import sys
 import torch
+import dagshub
 import mlflow
 import warnings
 import traceback
@@ -24,6 +25,7 @@ from loss import AdversarialLoss
 
 
 class Trainer:
+
     def __init__(
         self,
         epochs: int = 100,
@@ -31,7 +33,7 @@ class Trainer:
         beta1: float = 0.5,
         beta2: float = 0.9999,
         momentum: float = 0.9,
-        weight_delacy: float = 0.001,
+        weight_decay: float = 0.001,
         step_size: int = 20,
         gamma: float = 0.85,
         threshold: int = 50,
@@ -52,7 +54,7 @@ class Trainer:
         self.beta1 = beta1
         self.beta2 = beta2
         self.momentum = momentum
-        self.weight_delacy = weight_delacy
+        self.weight_decay = weight_decay
         self.step_size = step_size
         self.gamma = gamma
         self.threshold = threshold
@@ -127,6 +129,12 @@ class Trainer:
                 optimizer=self.optimizerD, step_size=self.step_size, gamma=self.gamma
             )
 
+        dagshub.init(
+            repo_owner=config()["MLFlow"]["MLFLOW_TRACKING_USERNAME"],
+            repo_name=config()["MLFlow"]["REPO_NAME"],
+            mlflow=self.mlflow,
+        )
+
         self.loss = float("inf")
 
         self.history = {"netG_loss": [], "netD_loss": []}
@@ -134,7 +142,7 @@ class Trainer:
     def l1(self, model: Discriminator):
         if isinstance(model, Discriminator):
             self.loss = sum(torch.norm(params, 1) for params in model.parameters())
-            return self.weight_delacy * self.loss
+            return self.weight_decay * self.loss
 
         else:
             raise TypeError("model must be an instance of Discriminator".capitalize())
@@ -142,7 +150,7 @@ class Trainer:
     def l2(self, model: Discriminator):
         if isinstance(model, Discriminator):
             self.loss = sum(torch.norm(params, 2) for params in model.parameters())
-            return self.weight_delacy * self.loss
+            return self.weight_decay * self.loss
 
         else:
             raise TypeError("model must be an instance of Discriminator".capitalize())
@@ -436,7 +444,7 @@ if __name__ == "__main__":
         help="Use L2 loss".capitalize(),
     )
     parser.add_argument(
-        "--elastic_regularization",
+        "--elasticnet_regularization",
         type=bool,
         default=config()["trainer"]["elastic_regularization"],
         help="Use elastic loss".capitalize(),
@@ -468,7 +476,7 @@ if __name__ == "__main__":
         beta1=args.beta1,
         beta2=args.beta2,
         momentum=args.momentum,
-        weight_delacy=args.weight_delacy,
+        weight_decay=args.weight_decay,
         step_size=args.step_size,
         gamma=args.gamma,
         device=args.device,

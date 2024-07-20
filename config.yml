@@ -22,13 +22,19 @@ database:
   PASSWORD: None         # Set Your PASSWORD
   CLUSTER_URL: None      # Set Your Cluster e.g. "cluster0.ym14neq.mongodb.net/?appName=Cluster0"
 
+MLFlow:
+  MLFLOW_TRACKING_URL: "https://dagshub.com/atikul-islam-sajib/CCGAN.mlflow"  # Set your own MLFlow Tracking URL
+  MLFLOW_TRACKING_USERNAME: "atikul-islam-sajib"                              # Set your own MLFlow Tracking Username
+  MLFLOW_TRACKING_PASSWORD: "74d9f47e6bc7f8a7a170d258186fcdf18a099a99"                                       # Set your own MLFlow Tracking Password
+  REPO_NAME: "CCGAN"
+
 trainer:
-  epochs: 5
+  epochs: 1
   lr: 0.001
   beta1: 0.5
   beta2: 0.999
   momentum: 0.90
-  weight_delacy: 0.001
+  weight_decay: 0.001
   step_size: 20
   gamma: 0.85
   device: "mps"
