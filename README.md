@@ -1,7 +1,8 @@
 # CCGAN
 CCGAN (Context Conditional GAN) is a deep learning model designed to generate high-quality images based on specific contextual information. It leverages a conditional Generative Adversarial Network (GAN) framework, where both the generator and discriminator are conditioned on additional context data to improve the realism and relevance of the generated images. CCGAN is particularly useful in scenarios where generating contextually accurate images is crucial, such as in image-to-image translation, super-resolution, and other image synthesis tasks.
 
-<img src="https://github.com/atikul-islam-sajib/Research-Assistant-Work-/blob/main/5-Figure2-1.png" alt="CCGAN Architecture" height="300">
+<img src="https://github.com/atikul-islam-sajib/Research-Assistant-Work-/blob/main/5-Figure2-1.png" alt="CCGAN Architecture" height="300" width="600">
+
 
 
 ## Getting Started
