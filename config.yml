@@ -29,28 +29,30 @@ MLFlow:
   REPO_NAME: "CCGAN"
 
 trainer:
-  epochs: 200
-  lr: 0.0002
-  beta1: 0.5
-  beta2: 0.999
-  momentum: 0.90
-  weight_decay: 0.001
-  step_size: 50
-  gamma: 0.85
-  threshold: 50
-  device: "mps"
-  adam: True
-  SGD: False
-  pixelLoss: False
-  l1_regularization: False
-  l2_regularization: False
-  elasticnet_regularization: False
-  lr_scheduler: False
-  verbose: True
-  mlflow: True
+  epochs: 2000                      # Number of training epochs
+  lr: 0.001                         # Learning rate
+  beta1: 0.5                        # Beta1 hyperparameter for Adam optimizer
+  beta2: 0.999                      # Beta2 hyperparameter for Adam optimizer
+  momentum: 0.90                    # Momentum for optimizers
+  weight_decay: 0.001               # Weight decay for regularization
+  step_size: 100                    # Step size for learning rate scheduler
+  gamma: 0.85                       # Multiplicative factor for learning rate decay
+  threshold: 100                    # Threshold for model saving purposes
+  device: "cpu"                     # Device to use for training (e.g., MPS, CPU, GPU)
+  adam: True                        # Use Adam optimizer
+  SGD: False                        # Use SGD optimizer
+  pixelLoss: False                  # Use pixel-wise loss
+  l1_regularization: False          # Use L1 regularization
+  l2_regularization: False          # Use L2 regularization
+  elasticnet_regularization: False  # Use Elastic Net regularization
+  lr_scheduler: True                # Enable learning rate scheduler
+  verbose: True                     # Enable verbose logging
+  mlflow: True                      # Enable MLflow tracking
+
 
 tester:
-  model: "best"
-  dataloader: "valid"
-  device: "cpu"
+  model: "best"                     # Model to use for testing (e.g., best model or "./checkpoints/train_models/netG10.pth")
+  dataloader: "valid"               # DataLoader to use for validation/testing e.g "train" or "valid"
+  device: "cpu"                     # Device to use for testing (e.g., CPU, GPU)
+
 
