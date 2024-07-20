@@ -4,6 +4,7 @@ import traceback
 
 sys.path.append("./")
 
+from tester import Tester
 from trainer import Trainer
 from dataloader import Loader
 from generator import Generator
@@ -198,14 +199,14 @@ def cli():
             mlflow=args.mlflow,
         )
 
-        try:
-            loader.unzip_folder()
-        except CustomException as e:
-            print("An error occurred: ", e)
-            traceback.print_exc()
-        except Exception as e:
-            print("An error occurred: ", e)
-            traceback.print_exc()
+        # try:
+        #     loader.unzip_folder()
+        # except CustomException as e:
+        #     print("An error occurred: ", e)
+        #     traceback.print_exc()
+        # except Exception as e:
+        #     print("An error occurred: ", e)
+        #     traceback.print_exc()
 
         try:
             loader.create_dataloader()
@@ -250,7 +251,23 @@ def cli():
                 traceback.print_exc()
 
     elif args.mode == "test":
-        pass
+        tester = Tester(
+            model=args.model,
+            dataloader=args.dataloader,
+            device=args.device,
+        )
+
+        try:
+            tester.test()
+        except CustomException as e:
+            print("An error occurred: ", e)
+            traceback.print_exc()
+        except FileNotFoundError as e:
+            print("An error occurred: ", e)
+            traceback.print_exc()
+        except Exception as e:
+            print("An error occurred: ", e)
+            traceback.print_exc()
 
 
 if __name__ == "__main__":
