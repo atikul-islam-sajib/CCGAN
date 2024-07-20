@@ -1,0 +1,21 @@
+stages:
+  model_train: 
+    cmd: python src/cli.py --mode train
+    deps:
+      - src/cli.py
+      - src/dataloader.py
+      - src/encoder.py
+      - src/decoder.py
+      - src/generator.py
+      - src/discriminator_block.py
+      - src/discriminator.py
+      - src/helper.py
+      - src/loss.py
+      - src/trainer.py
+      - src/utils.py
+      - ./config.yml
+    outs:
+      - ./data/:
+        persists: true
+      - ./artifacts/:
+        persists: true
