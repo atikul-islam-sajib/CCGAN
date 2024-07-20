@@ -114,13 +114,30 @@ class Trainer:
             )
 
     def l1(self, model: Discriminator):
-        pass
+        if isinstance(model, Discriminator):
+            self.loss = sum(torch.norm(params, 1) for params in model.parameters())
+            return self.weight_delacy * self.loss
+
+        else:
+            raise TypeError("model must be an instance of Discriminator".capitalize())
 
     def l2(self, model: Discriminator):
-        pass
+        if isinstance(model, Discriminator):
+            self.loss = sum(torch.norm(params, 2) for params in model.parameters())
+            return self.weight_delacy * self.loss
+
+        else:
+            raise TypeError("model must be an instance of Discriminator".capitalize())
 
     def elasticNet(self, model: Discriminator):
-        pass
+        if isinstance(model, Discriminator):
+            self.loss1 = self.l1(model=model)
+            self.loss2 = self.l2(model=model)
+
+            return self.weight_delacy * (self.loss1 + self.loss2)
+
+        else:
+            raise TypeError("model must be an instance of Discriminator".capitalize())
 
     def saved_checkpoints(self, **kwargs: dict):
         pass
