@@ -64,6 +64,36 @@ def connect_database():
         return False, _
 
 
+def clean_folder():
+    processed_path = config()["path"]["PROCESSED_IMAGE_DATA_PATH"]
+    files_path = config()["path"]["FILES_PATH"]
+    train_models = config()["path"]["FILES_PATH"]
+    best_model = config()["path"]["BEST_MODEL"]
+    metrics_path = config()["path"]["METRICS_PATH"]
+    train_output_images = config()["path"]["TRAIN_OUTPUT_IMAGES"]
+    valid_output_images = config()["path"]["TEST_OUTPUT_IMAGES"]
+
+    for path in [
+        processed_path,
+        files_path,
+        train_models,
+        best_model,
+        metrics_path,
+        train_output_images,
+        valid_output_images,
+    ]:
+        if validate_path(path=path):
+            for file in os.path.listdir(path):
+                os.remove(os.path.join(path, file))
+
+            print("{}: deleted all the old files".capitalize())
+
+        else:
+            raise FileNotFoundError(
+                "{} path is not found for cleaning....".capitalize()
+            )
+
+
 def weight_init(m):
     classname = m.__class__.__name__
     if classname.find("Conv") != -1:
