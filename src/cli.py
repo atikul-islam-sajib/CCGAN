@@ -211,14 +211,14 @@ def cli():
             mlflow=args.mlflow,
         )
 
-        # try:
-        #     loader.unzip_folder()
-        # except CustomException as e:
-        #     print("An error occurred: ", e)
-        #     traceback.print_exc()
-        # except Exception as e:
-        #     print("An error occurred: ", e)
-        #     traceback.print_exc()
+        try:
+            loader.unzip_folder()
+        except CustomException as e:
+            print("An error occurred: ", e)
+            traceback.print_exc()
+        except Exception as e:
+            print("An error occurred: ", e)
+            traceback.print_exc()
 
         try:
             loader.create_dataloader()
