@@ -23,22 +23,22 @@ database:
   CLUSTER_URL: None      # Set Your Cluster e.g. "cluster0.ym14neq.mongodb.net/?appName=Cluster0"
 
 trainer:
-epochs: 5
-lr: 0.001
-beta1: 0.5
-beta2: 0.999
-momentum: 0.90
-weight_delacy: 0.001,
-step_size: 20
-gamma: 0.85
-device: "mps"
-adam: True
-SGD: False
-pixelLoss: True
-l1_regularization: False
-l2_regularization: False
-elasticnet_regularization: False
-lr_scheduler: False
-verbose: True
-mlflow: False
+  epochs: 5
+  lr: 0.001
+  beta1: 0.5
+  beta2: 0.999
+  momentum: 0.90
+  weight_delacy: 0.001
+  step_size: 20
+  gamma: 0.85
+  device: "mps"
+  adam: True
+  SGD: False
+  pixelLoss: True
+  l1_regularization: False
+  l2_regularization: False
+  elasticnet_regularization: False
+  lr_scheduler: False
+  verbose: True
+  mlflow: False
 
