@@ -1,16 +1,15 @@
 import os
 import sys
 import torch
-import dagshub
 import mlflow
+import dagshub
+import argparse
 import warnings
 import traceback
+import numpy as np
 import pandas as pd
 import torch.nn as nn
-import numpy as np
-import argparse
 from tqdm import tqdm
-import torch.nn as nn
 import matplotlib.pyplot as plt
 from torch.optim.lr_scheduler import StepLR
 from torchvision.utils import save_image
@@ -19,11 +18,18 @@ warnings.filterwarnings("ignore")
 
 sys.path.append("./")
 
-from utils import dump, load, config, weight_init, device_init, CustomException
 from helper import helpers
 from generator import Generator
-from discriminator import Discriminator
 from loss import AdversarialLoss
+from discriminator import Discriminator
+from utils import (
+    dump,
+    load,
+    config,
+    weight_init,
+    device_init,
+    CustomException,
+)
 
 
 class Trainer:
