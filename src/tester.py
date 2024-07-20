@@ -7,8 +7,13 @@ import matplotlib.pyplot as plt
 
 sys.path.append("./")
 
-from utils import config, device_init, validate_path, load
 from generator import Generator
+from utils import (
+    config,
+    device_init,
+    validate_path,
+    load,
+)
 
 
 class Tester:
