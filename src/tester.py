@@ -1,6 +1,7 @@
 import os
 import sys
 import torch
+import argparse
 import traceback
 import matplotlib.pyplot as plt
 
@@ -122,7 +123,15 @@ class Tester:
             plt.title("Generated".capitalize())
             plt.axis("off")
 
+        plt.tight_layout()
+        plt.savefig(os.path.join(config()["path"]["TEST_OUTPUT_IMAGES"]))
         plt.show()
+
+        print(
+            "Images saved to {}".format(
+                os.path.join(config()["path"]["TEST_OUTPUT_IMAGES"])
+            )
+        )
 
     def test(self):
         netG = self.initialize_netG()
@@ -140,5 +149,29 @@ class Tester:
 
 
 if __name__ == "__main__":
-    tester = Tester(model="best", device="mps")
+    parser = argparse.ArgumentParser(description="Tester code for CCGAN".capitalize())
+    parser.add_argument(
+        "--model",
+        type=str,
+        default=config()["tester"]["model"],
+        help="Model to be tested".capitalize(),
+    )
+    parser.add_argument(
+        "--dataloader",
+        type=str,
+        default=config()["tester"]["dataloader"],
+        help="Data loader to be used".capitalize(),
+    )
+    parser.add_argument(
+        "--device", type=str, default="mps", help="Device to be used".capitalize()
+    )
+
+    args = parser.parse_args()
+
+    tester = Tester(
+        model=args.model,
+        dataloader=args.dataloader,
+        device=args.device,
+    )
+
     tester.test()
