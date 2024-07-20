@@ -16,6 +16,6 @@ stages:
       - ./config.yml
     outs:
       - ./data/:
-        persists: true
+          persists: true
       - ./artifacts/:
-        persists: true
+          persists: true
