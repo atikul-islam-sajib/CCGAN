@@ -1,8 +1,12 @@
+import os
 import sys
 import torch
+import numpy as np
 import argparse
+from tqdm import tqdm
 import torch.nn as nn
 from torch.optim.lr_scheduler import StepLR
+from torchvision.utils import save_image
 
 sys.path.append("./")
 
@@ -113,6 +117,8 @@ class Trainer:
                 optimizer=self.optimizerD, step_size=self.step_size, gamma=self.gamma
             )
 
+        self.history = {"netG_loss": [], "netD_loss": []}
+
     def l1(self, model: Discriminator):
         if isinstance(model, Discriminator):
             self.loss = sum(torch.norm(params, 1) for params in model.parameters())
@@ -143,19 +149,114 @@ class Trainer:
         pass
 
     def saved_images(self, **kwargs: dict):
-        pass
+        epoch = kwargs["epoch"]
+
+        X, y, lr_image = next(iter(self.train_dataloader))
+
+        X = X.to(self.device)
+        y = y.to(self.device)
+        lr_image = lr_image.to(self.device)
+
+        generated_images = self.netG(X, lr_image)
+
+        save_image(
+            generated_images,
+            os.path.join(
+                config()["path"]["TRAIN_OUTPUT_IMAGES"], "train_image{}.png"
+            ).format(epoch),
+        )
 
     def display_progress(self, **kwargs: dict):
-        pass
+        epoch = kwargs["epoch"]
+        netG_loss = kwargs["netG_loss"]
+        netD_loss = kwargs["netD_loss"]
+
+        if self.verbose:
+            print(
+                "Epochs: [{}/{}] - netG_loss: [{:.4f}] - netD_loss: [{:.4f}]".format(
+                    epoch, self.epochs, netG_loss, netD_loss
+                )
+            )
+        else:
+            print(
+                "Epochs: [{}/{}] is completed".capitalize().format(epoch, self.epochs)
+            )
 
     def update_train_generator(self, **kwargs: dict):
-        pass
+        X = kwargs["X"]
+        y = kwargs["y"]
+        lr_image = kwargs["lr_image"]
+
+        self.optimizerG.zero_grad()
+
+        generated_image = self.netG(X, lr_image)
+        generated_predict = self.netD(generated_image)
+
+        generated_loss = self.adversarial_loss(
+            generated_predict, torch.ones_like(generated_predict)
+        )
+
+        generated_loss.backward()
+        self.optimizerG.step()
+
+        return generated_loss.item()
 
     def update_train_discriminator(self, **kwargs: dict):
-        pass
+        X = kwargs["X"]
+        y = kwargs["y"]
+        lr_image = kwargs["lr_image"]
+
+        self.optimizerD.zero_grad()
+
+        real_predict = self.netD(y)
+        real_image_loss = self.adversarial_loss(
+            real_predict, torch.ones_like(real_predict)
+        )
+
+        generated_image = self.netG(X, lr_image)
+        generated_predict = self.netD(generated_image)
+
+        generated_image_loss = self.adversarial_loss(
+            generated_predict, torch.zeros_like(generated_predict)
+        )
+
+        total_loss = 0.5 * (real_image_loss + generated_image_loss)
+
+        total_loss.backward()
+        self.optimizerD.step()
+
+        return total_loss.item()
 
     def train(self):
-        pass
+        for epoch in tqdm(range(self.epochs)):
+            self.netG_loss = []
+            self.netD_loss = []
+
+            for index, (X, y, lr_image) in enumerate(self.train_dataloader):
+                X = X.to(self.device)
+                y = y.to(self.device)
+                lr_image = lr_image.to(self.device)
+
+                self.netD_loss.append(
+                    self.update_train_discriminator(X=X, y=y, lr_image=lr_image)
+                )
+
+                self.netG_loss.append(
+                    self.update_train_generator(X=X, y=y, lr_image=lr_image)
+                )
+
+            if self.lr_scheduler:
+                self.schedulerG.step()
+                self.schedulerD.step()
+
+            self.display_progress(
+                epoch=epoch + 1,
+                netG_loss=np.mean(self.netG_loss),
+                netD_loss=np.mean(self.netD_loss),
+            )
+
+            if self.epochs % self.step_size:
+                self.saved_images(epoch=epoch + 1)
 
     @staticmethod
     def display_history():
@@ -182,3 +283,5 @@ if __name__ == "__main__":
         verbose=True,
         mlflow=False,
     )
+
+    trainer.train()
