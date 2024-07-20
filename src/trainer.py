@@ -129,11 +129,15 @@ class Trainer:
                 optimizer=self.optimizerD, step_size=self.step_size, gamma=self.gamma
             )
 
-        dagshub.init(
-            repo_owner=config()["MLFlow"]["MLFLOW_TRACKING_USERNAME"],
-            repo_name=config()["MLFlow"]["REPO_NAME"],
-            mlflow=self.mlflow,
-        )
+        try:
+            dagshub.init(
+                repo_owner=config()["MLFlow"]["MLFLOW_TRACKING_USERNAME"],
+                repo_name=config()["MLFlow"]["REPO_NAME"],
+                mlflow=self.mlflow,
+            )
+        except Exception as e:
+            print("An error occured while initializing dagshub: ", e)
+            traceback.print_exc()
 
         self.loss = float("inf")
 
@@ -329,7 +333,7 @@ class Trainer:
                         "beta1": self.beta1,
                         "beta2": self.beta2,
                         "momentum": self.momentum,
-                        "weight_delacy": self.weight_delacy,
+                        "weight_decay": self.weight_decay,
                         "step_size": self.step_size,
                         "gamma": self.gamma,
                         "device": self.device,
@@ -450,7 +454,7 @@ if __name__ == "__main__":
         help="Use elastic loss".capitalize(),
     )
     parser.add_argument(
-        "lr_scheduler",
+        "--lr_scheduler",
         type=bool,
         default=config()["trainer"]["lr_scheduler"],
         help="Use lr scheduler".capitalize(),

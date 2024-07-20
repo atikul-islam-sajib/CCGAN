@@ -25,7 +25,7 @@ database:
 MLFlow:
   MLFLOW_TRACKING_URL: "https://dagshub.com/atikul-islam-sajib/CCGAN.mlflow"  # Set your own MLFlow Tracking URL
   MLFLOW_TRACKING_USERNAME: "atikul-islam-sajib"                              # Set your own MLFlow Tracking Username
-  MLFLOW_TRACKING_PASSWORD: "74d9f47e6bc7f8a7a170d258186fcdf18a099a99"                                       # Set your own MLFlow Tracking Password
+  MLFLOW_TRACKING_PASSWORD: "*********"                                       # Set your own MLFlow Tracking Password
   REPO_NAME: "CCGAN"
 
 trainer:
@@ -46,5 +46,5 @@ trainer:
   elasticnet_regularization: False
   lr_scheduler: False
   verbose: True
-  mlflow: False
+  mlflow: True
 
