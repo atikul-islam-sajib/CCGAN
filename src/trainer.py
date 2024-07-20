@@ -417,7 +417,7 @@ class Trainer:
         history = load(filename=metrics_path)
 
         fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-        fig.suptitle("netG vs netD loss".title(), fontsize=16)
+        fig.suptitle("netG vs netD loss", fontsize=16)
 
         axes[0].plot(history["netG_loss"], label="netG_loss")
         axes[0].legend()
