@@ -86,7 +86,7 @@ def clean_folder():
             for file in os.listdir(path):
                 os.remove(os.path.join(path, file))
 
-            print("{}: deleted all the old files".capitalize())
+            print("{}: deleted all the old files".capitalize().format(path))
 
         else:
             raise FileNotFoundError(
