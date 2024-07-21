@@ -85,10 +85,9 @@ dataset/  # Folder name must be 'dataset'
 - `y` folder will contain the clean data.
 - Each image in `X` must be paired with a corresponding image in `y` (e.g., `X/1.png` pairs with `y/1.png`).
 
-### User Guide Notebook - CLI
+### User Guide Notebook (Tutorial for training and inferencing)
 
-UPLOAD LATER(MAY BE TOMORROW.......)
-<!-- For detailed documentation on the implementation and usage, visit the -> [VAE Notebook - CLI](https://github.com/atikul-islam-sajib/VAE-Pytorch/blob/main/research/notebooks/ModelTrain_CLI.ipynb). -->
+For detailed documentation on the implementation and usage, visit the -> [CCGAN Tutorial Notebook](https://github.com/atikul-islam-sajib/CCGAN/blob/main/research/notebooks/CCGAN_Model_Train_%26_Inference_Tutorial.ipynb)
 
 ### Command Line Interface
 
@@ -207,7 +206,6 @@ trainer = Trainer(
     SGD=False,                 # Use Stochastic Gradient Descent optimizer; typically False if Adam is True
     beta1=0.5,                 # Beta1 parameter for Adam optimizer
     lr_scheduler=False,        # Enable a learning rate scheduler
-    weight_init=False,         # Enable custom weight initialization for the models
     display=True               # Display training progress and statistics
 
     ... ... ... 
