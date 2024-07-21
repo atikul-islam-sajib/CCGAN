@@ -3,6 +3,8 @@ CCGAN (Context Conditional GAN) is a deep learning model designed to generate hi
 
 <img src="https://github.com/atikul-islam-sajib/Research-Assistant-Work-/blob/main/5-Figure2-1.png" alt="CCGAN Architecture" height="300" width="1200">
 
+[CCGAN - Original Paper](https://arxiv.org/abs/1611.06430)
+
 
 
 ## Getting Started
