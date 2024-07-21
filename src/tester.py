@@ -129,7 +129,7 @@ class Tester:
             plt.axis("off")
 
         plt.tight_layout()
-        plt.savefig(os.path.join(config()["path"]["TEST_OUTPUT_IMAGES"]))
+        plt.savefig(os.path.join(config()["path"]["TEST_OUTPUT_IMAGES"], "test_image.png"))
         plt.show()
 
         print(
