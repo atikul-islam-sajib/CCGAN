@@ -434,6 +434,7 @@ class Trainer:
         axes[1].set_ylabel("Loss")
 
         plt.show()
+        plt.savefig(os.path.join(config()["path"]["METRICS_PATH"]))
 
 
 if __name__ == "__main__":
