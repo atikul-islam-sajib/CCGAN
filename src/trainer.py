@@ -433,8 +433,8 @@ class Trainer:
         axes[1].set_xlabel("Epochs")
         axes[1].set_ylabel("Loss")
 
-        plt.show()
         plt.savefig(os.path.join(config()["path"]["METRICS_PATH"], "model_loss.png"))
+        plt.show()
 
 
 if __name__ == "__main__":
