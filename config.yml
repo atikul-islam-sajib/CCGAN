@@ -49,7 +49,7 @@ trainer:
   elasticnet_regularization: False  # Use Elastic Net regularization
   lr_scheduler: True                # Enable learning rate scheduler
   verbose: True                     # Enable verbose logging
-  mlflow: True                      # Enable MLflow tracking
+  mlflow: False                     # Enable MLflow tracking
 
 
 tester:
