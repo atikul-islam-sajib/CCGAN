@@ -259,7 +259,7 @@ python src/cli.py --mode test
 
 You can access the MLflow experiment tracking UI hosted on DagsHub using the following link:
 
-[VAE Experiment Tracking on DagsHub](https://dagshub.com/atikul-islam-sajib/CCGAN)
+[CCGAN Experiment Tracking on DagsHub](https://dagshub.com/atikul-islam-sajib/CCGAN)
 
 ### Using MLflow UI Locally
 
